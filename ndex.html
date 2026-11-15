@@ -1,0 +1,1199 @@
+
+
+<!DOCTYPE html>
+
+<html lang="fa" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>پروژه: سید رهام مولایی فر</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
+
+*{box-sizing:border-box}
+
+body{
+
+  margin:0;
+
+  background:#eef3f8;
+
+  color:#19344d;
+
+  font-family:Vazirmatn,Tahoma,sans-serif;
+
+}
+
+header{
+
+  background:#17466e;
+
+  color:white;
+
+  text-align:center;
+
+  padding:19px 10px;
+
+  font-size:25px;
+
+  font-weight:900;
+
+}
+
+main{max-width:1150px;margin:20px auto;padding:0 12px}
+
+.card{
+
+  background:white;
+
+  border-radius:18px;
+
+  overflow:hidden;
+
+  box-shadow:0 5px 22px #173b5b18;
+
+}
+
+.heading{
+
+  text-align:center;
+
+  background:#f3f7fb;
+
+  padding:18px;
+
+}
+
+.heading h2{margin:0 0 5px;font-size:27px}
+
+.heading p{margin:0;color:#27618d;font-weight:700}
+
+.content{
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:16px;
+
+  padding:16px;
+
+}
+
+#map{
+
+  height:510px;
+
+  border-radius:14px;
+
+  border:1px solid #d9e3eb;
+
+  background:#e9f1f5;
+
+}
+
+.details{display:flex;flex-direction:column;gap:12px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.stat{background:#f1f6fa;padding:13px;border-radius:12px}
+
+.stat small{color:#63788a}
+
+.stat strong{
+
+  display:block;
+
+  margin-top:5px;
+
+  font-size:18px;
+
+  color:#174c78;
+
+}
+
+.section{background:#f7f9fb;padding:14px;border-radius:12px}
+
+.section h3{margin:0 0 7px;color:#205b8c;font-size:16px}
+
+.section p{margin:0;font-size:14px;line-height:2.1}
+
+.facts{display:grid;gap:8px}
+
+.fact{
+
+  background:#fff8e9;
+
+  padding:10px 12px;
+
+  border-radius:10px;
+
+  font-size:13px;
+
+  line-height:1.9;
+
+}
+
+.buttons{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:12px;
+
+  padding:0 16px 17px;
+
+}
+
+button{
+
+  font-family:inherit;
+
+  font-size:15px;
+
+  font-weight:800;
+
+  border:0;
+
+  border-radius:11px;
+
+  background:#23649b;
+
+  color:white;
+
+  padding:12px 24px;
+
+  cursor:pointer;
+
+}
+
+button:disabled{opacity:.45;cursor:not-allowed}
+
+.capital-label,.province-label{
+
+  font-family:Vazirmatn,Tahoma,sans-serif;
+
+  font-weight:800;
+
+  color:#173c5d;
+
+  background:white;
+
+  border:1px solid #23649b;
+
+  border-radius:6px;
+
+  padding:2px 5px;
+
+  white-space:nowrap;
+
+  box-shadow:0 1px 5px #0002;
+
+}
+
+.province-label{font-size:10px}
+
+.capital-label{font-size:11px}
+
+.leaflet-tooltip:before{display:none}
+
+#mapStatus{
+
+  font-size:12px;
+
+  color:#64788a;
+
+  text-align:center;
+
+  padding:0 10px 12px;
+
+}
+
+@media(max-width:750px){
+
+  .content{grid-template-columns:1fr}
+
+  #map{height:380px}
+
+  .heading h2{font-size:23px}
+
+  button{padding:10px 15px}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>پروژه: سید رهام مولایی فر</header>
+
+<main>
+
+<div class="card">
+
+  <div class="heading">
+
+    <h2 id="provinceName"></h2>
+
+    <p id="capitalName"></p>
+
+  </div>
+
+  <div class="content">
+
+    <div id="map"></div>
+
+    <div class="details">
+
+      <div class="stats">
+
+        <div class="stat">
+
+          <small>جمعیت تقریبی</small>
+
+          <strong id="population"></strong>
+
+        </div>
+
+        <div class="stat">
+
+          <small>مساحت</small>
+
+          <strong id="area"></strong>
+
+        </div>
+
+      </div>
+
+      <div class="section">
+
+        <h3>توضیحات استان</h3>
+
+        <p id="description"></p>
+
+      </div>
+
+      <div class="section">
+
+        <h3>فکت‌ها و دانستنی‌ها</h3>
+
+        <div class="facts" id="facts"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id="mapStatus">در حال بارگذاری نقشه ایران...</div>
+
+  <div class="buttons">
+
+    <button id="previous">← استان قبلی</button>
+
+    <button id="next">استان بعدی →</button>
+
+  </div>
+
+</div>
+
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+const provinces = [
+
+{
+
+name:"آذربایجان شرقی",en:"East Azerbaijan",capital:"تبریز",
+
+lat:38.08,lng:46.29,pop:"حدود ۳٫۹ میلیون نفر",area:"۴۵٬۶۵۰ کیلومتر مربع",
+
+description:"آذربایجان شرقی در شمال‌غرب ایران قرار دارد. این استان به‌خاطر تاریخ کهن، فرهنگ غنی، کوهستان‌ها و صنایع مختلف شناخته می‌شود.",
+
+facts:[
+
+"بازار تاریخی تبریز از بزرگ‌ترین بازارهای سرپوشیده جهان است.",
+
+"کوه سهند از کوه‌های معروف این استان است.",
+
+"کوفته تبریزی از غذاهای مشهور این منطقه است."
+
+]},
+
+{
+
+name:"آذربایجان غربی",en:"West Azerbaijan",capital:"ارومیه",
+
+lat:37.55,lng:45.07,pop:"حدود ۳٫۳ میلیون نفر",area:"۳۷٬۴۳۷ کیلومتر مربع",
+
+description:"این استان در شمال‌غرب ایران قرار دارد و با چند کشور هم‌مرز است. طبیعت کوهستانی و دریاچه ارومیه از ویژگی‌های آن هستند.",
+
+facts:[
+
+"دریاچه ارومیه یکی از دریاچه‌های بزرگ آب شور منطقه است.",
+
+"قره‌کلیسا از آثار تاریخی شناخته‌شده استان است.",
+
+"سیب و انگور از محصولات مهم این استان هستند."
+
+]},
+
+{
+
+name:"اردبیل",en:"Ardabil",capital:"اردبیل",
+
+lat:38.25,lng:48.30,pop:"حدود ۱٫۳ میلیون نفر",area:"۱۷٬۹۵۳ کیلومتر مربع",
+
+description:"اردبیل در شمال‌غرب ایران قرار دارد. آب‌وهوای خنک، کوه سبلان و چشمه‌های آب گرم از ویژگی‌های طبیعی این استان هستند.",
+
+facts:[
+
+"کوه سبلان از کوه‌های بلند ایران است.",
+
+"سرعین به چشمه‌های آب گرمش معروف است.",
+
+"مجموعه شیخ صفی‌الدین اردبیلی در این استان قرار دارد."
+
+]},
+
+{
+
+name:"اصفهان",en:"Isfahan",capital:"اصفهان",
+
+lat:32.65,lng:51.67,pop:"حدود ۵٫۱ میلیون نفر",area:"۱۰۷٬۰۲۹ کیلومتر مربع",
+
+description:"اصفهان در مرکز ایران قرار دارد و در دوره صفوی پایتخت کشور بوده است. بناهای تاریخی و هنرهای سنتی آن شهرت زیادی دارند.",
+
+facts:[
+
+"میدان نقش‌جهان در فهرست میراث جهانی یونسکو ثبت شده است.",
+
+"سی‌وسه‌پل و پل خواجو از پل‌های تاریخی شهر هستند.",
+
+"میناکاری و قلم‌زنی از هنرهای مشهور استان‌اند."
+
+]},
+
+{
+
+name:"ایلام",en:"Ilam",capital:"ایلام",
+
+lat:33.63,lng:46.42,pop:"حدود ۶۰۰ هزار نفر",area:"۲۰٬۱۳۳ کیلومتر مربع",
+
+description:"ایلام در غرب ایران و در کنار مرز عراق قرار دارد. طبیعت کوهستانی، جنگل‌های بلوط و آثار تاریخی از ویژگی‌های آن هستند.",
+
+facts:[
+
+"تنگه رازیانه از جاذبه‌های طبیعی استان است.",
+
+"جنگل‌های بلوط بخش‌هایی از طبیعت ایلام را پوشانده‌اند.",
+
+"این منطقه پیشینه تاریخی بسیار قدیمی دارد."
+
+]},
+
+{
+
+name:"بوشهر",en:"Bushehr",capital:"بوشهر",
+
+lat:28.92,lng:50.83,pop:"حدود ۱٫۲ میلیون نفر",area:"۲۲٬۷۴۳ کیلومتر مربع",
+
+description:"بوشهر در جنوب ایران و در ساحل خلیج فارس قرار دارد. بندرها و فعالیت‌های دریایی در زندگی و اقتصاد این استان اهمیت زیادی دارند.",
+
+facts:[
+
+"بوشهر به خلیج فارس راه دارد.",
+
+"بندر تاریخی سیراف از بندرهای مهم قدیمی ایران بوده است.",
+
+"ماهی و میگو از خوراکی‌های معروف استان هستند."
+
+]},
+
+{
+
+name:"تهران",en:"Tehran",capital:"تهران",
+
+lat:35.69,lng:51.39,pop:"حدود ۱۴ میلیون نفر",area:"۱۸٬۸۱۴ کیلومتر مربع",
+
+description:"تهران در شمال ایران مرکزی و دامنه جنوبی رشته‌کوه البرز قرار دارد. این شهر از سال ۱۷۸۶ میلادی پایتخت ایران است.",
+
+facts:[
+
+"برج آزادی از نمادهای معروف تهران است.",
+
+"برج میلاد یکی از سازه‌های بلند شهر است.",
+
+"کاخ گلستان در فهرست میراث جهانی یونسکو قرار دارد."
+
+]},
+
+{
+
+name:"چهارمحال و بختیاری",en:"Chaharmahal and Bakhtiari",capital:"شهرکرد",
+
+lat:32.33,lng:50.86,pop:"حدود ۱ میلیون نفر",area:"۱۶٬۳۳۲ کیلومتر مربع",
+
+description:"این استان در زاگرس مرکزی قرار دارد و طبیعت آن شامل کوهستان‌ها، رودخانه‌ها و دشت‌های زیباست.",
+
+facts:[
+
+"شهرکرد یکی از مرتفع‌ترین مرکزهای استان در ایران است.",
+
+"سرچشمه‌های رود زاینده‌رود در این استان قرار دارند.",
+
+"دشت لاله‌های واژگون کوهرنگ از جاذبه‌های طبیعی آن است."
+
+]},
+
+{
+
+name:"خراسان جنوبی",en:"South Khorasan",capital:"بیرجند",
+
+lat:32.86,lng:59.22,pop:"حدود ۸۰۰ هزار نفر",area:"۱۵۱٬۹۱۳ کیلومتر مربع",
+
+description:"خراسان جنوبی در شرق ایران قرار دارد و بخش‌هایی از آن آب‌وهوای کویری دارند. این استان بخشی از خراسان تاریخی بوده است.",
+
+facts:[
+
+"زعفران و زرشک از محصولات معروف استان هستند.",
+
+"باغ و عمارت اکبریه بیرجند در فهرست میراث جهانی یونسکو ثبت شده است.",
+
+"کویر و آسمان پرستاره از جاذبه‌های طبیعی منطقه‌اند."
+
+]},
+
+{
+
+name:"خراسان رضوی",en:"Razavi Khorasan",capital:"مشهد",
+
+lat:36.30,lng:59.60,pop:"حدود ۶٫۵ میلیون نفر",area:"۱۱۸٬۸۸۴ کیلومتر مربع",
+
+description:"خراسان رضوی در شمال‌شرق ایران قرار دارد. شهر مشهد مرکز استان و یکی از مهم‌ترین شهرهای زیارتی و گردشگری کشور است.",
+
+facts:[
+
+"حرم امام رضا (ع) در شهر مشهد قرار دارد.",
+
+"آرامگاه فردوسی در توس، نزدیک مشهد است.",
+
+"زعفران و زرشک از محصولات مهم استان هستند."
+
+]},
+
+{
+
+name:"خراسان شمالی",en:"North Khorasan",capital:"بجنورد",
+
+lat:37.47,lng:57.33,pop:"حدود ۹۰۰ هزار نفر",area:"۲۸٬۴۳۴ کیلومتر مربع",
+
+description:"این استان در شمال‌شرق ایران قرار دارد و طبیعتی شامل کوهستان، دشت و جنگل دارد.",
+
+facts:[
+
+"پارک ملی سالوک از مناطق طبیعی ارزشمند آن است.",
+
+"فرهنگ‌های فارسی، کردی، ترکی و ترکمنی در استان دیده می‌شوند.",
+
+"بجنورد مرکز استان خراسان شمالی است."
+
+]},
+
+{
+
+name:"خوزستان",en:"Khuzestan",capital:"اهواز",
+
+lat:31.32,lng:48.68,pop:"حدود ۵ میلیون نفر",area:"۶۴٬۰۵۵ کیلومتر مربع",
+
+description:"خوزستان در جنوب‌غرب ایران قرار دارد و از مناطق بسیار کهن کشور است. رود کارون و آثار تاریخی شوش از ویژگی‌های آن هستند.",
+
+facts:[
+
+"زیگورات چغازنبیل در فهرست میراث جهانی یونسکو ثبت شده است.",
+
+"رود کارون از رودهای مهم ایران است.",
+
+"نفت و کشاورزی در اقتصاد استان اهمیت دارند."
+
+]},
+
+{
+
+name:"زنجان",en:"Zanjan",capital:"زنجان",
+
+lat:36.67,lng:48.50,pop:"حدود ۱٫۱ میلیون نفر",area:"۲۱٬۷۷۳ کیلومتر مربع",
+
+description:"زنجان در شمال‌غرب ایران قرار دارد و آثار تاریخی و صنایع‌دستی متنوعی دارد.",
+
+facts:[
+
+"گنبد سلطانیه از بزرگ‌ترین گنبدهای آجری جهان است.",
+
+"چاقوسازی و ملیله‌کاری از صنایع‌دستی معروف زنجان‌اند.",
+
+"غار کتله‌خور از جاذبه‌های طبیعی استان است."
+
+]},
+
+{
+
+name:"سمنان",en:"Semnan",capital:"سمنان",
+
+lat:35.57,lng:53.40,pop:"حدود ۷۰۰ هزار نفر",area:"۹۷٬۴۹۱ کیلومتر مربع",
+
+description:"سمنان در شمال ایران مرکزی قرار دارد و بخش‌هایی از دشت کویر را در بر می‌گیرد. این استان آثار تاریخی و طبیعت کویری دارد.",
+
+facts:[
+
+"پارک ملی کویر از مناطق طبیعی مهم این استان است.",
+
+"منطقه توران زیستگاه جانوران گوناگون است.",
+
+"دامغان و شاهرود از شهرهای مهم استان هستند."
+
+]},
+
+{
+
+name:"سیستان و بلوچستان",en:"Sistan and Baluchestan",capital:"زاهدان",
+
+lat:29.50,lng:60.86,pop:"حدود ۲٫۸ میلیون نفر",area:"۱۸۰٬۷۲۶ کیلومتر مربع",
+
+description:"این استان در جنوب‌شرق ایران قرار دارد و از نظر مساحت یکی از بزرگ‌ترین استان‌های کشور است. به دریای عمان نیز راه دارد.",
+
+facts:[
+
+"شهر سوخته از محوطه‌های باستانی مهم جهان است.",
+
+"بندر چابهار تنها بندر اقیانوسی ایران است.",
+
+"کوه خواجه و تالاب هامون از مکان‌های شناخته‌شده منطقه‌اند."
+
+]},
+
+{
+
+name:"فارس",en:"Fars",capital:"شیراز",
+
+lat:29.59,lng:52.58,pop:"حدود ۵ میلیون نفر",area:"۱۲۲٬۶۰۸ کیلومتر مربع",
+
+description:"فارس در جنوب ایران قرار دارد و از مرکزهای مهم تاریخ ایران باستان است. شیراز مرکز این استان است.",
+
+facts:[
+
+"تخت جمشید از آثار ثبت‌شده در میراث جهانی یونسکو است.",
+
+"آرامگاه حافظ و سعدی در شیراز قرار دارند.",
+
+"باغ‌های ایرانی از زیبایی‌های معروف شیراز هستند."
+
+]},
+
+{
+
+name:"قزوین",en:"Qazvin",capital:"قزوین",
+
+lat:36.27,lng:50.00,pop:"حدود ۱٫۳ میلیون نفر",area:"۱۵٬۵۴۹ کیلومتر مربع",
+
+description:"قزوین در شمال‌غرب تهران قرار دارد. این شهر در دوره صفوی برای مدتی پایتخت ایران بود.",
+
+facts:[
+
+"کاروانسرای سعدالسلطنه از بناهای تاریخی معروف قزوین است.",
+
+"قلعه الموت در کوهستان‌های این استان قرار دارد.",
+
+"قزوین به شیرینی‌های سنتی خود نیز معروف است."
+
+]},
+
+{
+
+name:"قم",en:"Qom",capital:"قم",
+
+lat:34.64,lng:50.88,pop:"حدود ۱٫۴ میلیون نفر",area:"۱۱٬۵۲۶ کیلومتر مربع",
+
+description:"قم در مرکز ایران قرار دارد و از شهرهای مهم مذهبی کشور است. این استان در نزدیکی دریاچه نمک قرار گرفته است.",
+
+facts:[
+
+"حرم حضرت معصومه (س) در شهر قم قرار دارد.",
+
+"مسجد جمکران از مکان‌های شناخته‌شده این شهر است.",
+
+"سوهان از شیرینی‌های معروف قم است."
+
+]},
+
+{
+
+name:"کردستان",en:"Kurdistan",capital:"سنندج",
+
+lat:35.31,lng:46.99,pop:"حدود ۱٫۶ میلیون نفر",area:"۲۹٬۱۳۷ کیلومتر مربع",
+
+description:"کردستان در غرب ایران و در رشته‌کوه زاگرس قرار دارد. این استان به طبیعت کوهستانی و فرهنگ کردی شناخته می‌شود.",
+
+facts:[
+
+"دریاچه زریوار در نزدیکی مریوان قرار دارد.",
+
+"عمارت آصف از بناهای تاریخی سنندج است.",
+
+"موسیقی کردی از بخش‌های مهم فرهنگ این منطقه است."
+
+]},
+
+{
+
+name:"کرمان",en:"Kerman",capital:"کرمان",
+
+lat:30.28,lng:57.08,pop:"حدود ۳٫۳ میلیون نفر",area:"۱۸۳٬۲۸۵ کیلومتر مربع",
+
+description:"کرمان در جنوب‌شرق ایران قرار دارد و از نظر مساحت یکی از بزرگ‌ترین استان‌های کشور است. این استان آثار تاریخی و مناطق کویری زیادی دارد.",
+
+facts:[
+
+"ارگ بم از آثار ثبت‌شده در میراث جهانی یونسکو است.",
+
+"باغ شاهزاده ماهان از باغ‌های تاریخی معروف ایران است.",
+
+"پسته از محصولات مشهور استان کرمان است."
+
+]},
+
+{
+
+name:"کرمانشاه",en:"Kermanshah",capital:"کرمانشاه",
+
+lat:34.31,lng:47.07,pop:"حدود ۲ میلیون نفر",area:"۲۴٬۶۴۰ کیلومتر مربع",
+
+description:"کرمانشاه در غرب ایران و در منطقه زاگرس قرار دارد. این استان آثار تاریخی ارزشمندی از دوره‌های باستانی دارد.",
+
+facts:[
+
+"کتیبه بیستون در فهرست میراث جهانی یونسکو ثبت شده است.",
+
+"طاق بستان از آثار تاریخی مشهور استان است.",
+
+"نان برنجی از خوراکی‌های معروف کرمانشاه است."
+
+]},
+
+{
+
+name:"کهگیلویه و بویراحمد",en:"Kohgiluyeh and Boyer-Ahmad",capital:"یاسوج",
+
+lat:30.67,lng:51.59,pop:"حدود ۷۰۰ هزار نفر",area:"۱۵٬۵۰۴ کیلومتر مربع",
+
+description:"این استان در جنوب‌غرب ایران و در منطقه زاگرس قرار دارد. کوهستان‌ها، جنگل‌ها و آبشارهای طبیعی از ویژگی‌های آن هستند.",
+
+facts:[
+
+"آبشار یاسوج از جاذبه‌های طبیعی استان است.",
+
+"دنا از رشته‌کوه‌های بلند زاگرس در این منطقه است.",
+
+"طبیعت کوهستانی استان برای گردشگری اهمیت دارد."
+
+]},
+
+{
+
+name:"گلستان",en:"Golestan",capital:"گرگان",
+
+lat:36.84,lng:54.44,pop:"حدود ۲ میلیون نفر",area:"۲۰٬۳۶۷ کیلومتر مربع",
+
+description:"گلستان در شمال ایران و در نزدیکی دریای خزر قرار دارد. جنگل‌ها، دشت‌ها و تنوع فرهنگی از ویژگی‌های این استان هستند.",
+
+facts:[
+
+"پارک ملی گلستان یکی از مناطق حفاظت‌شده مهم ایران است.",
+
+"برج گنبد قابوس در فهرست میراث جهانی یونسکو ثبت شده است.",
+
+"تنوع قومی و فرهنگی در این استان بسیار زیاد است."
+
+]},
+
+{
+
+name:"گیلان",en:"Gilan",capital:"رشت",
+
+lat:37.28,lng:49.58,pop:"حدود ۲٫۵ میلیون نفر",area:"۱۴٬۰۴۲ کیلومتر مربع",
+
+description:"گیلان در شمال ایران و کنار دریای خزر قرار دارد. بارندگی فراوان، جنگل‌ها و شالیزارهای برنج از ویژگی‌های آن هستند.",
+
+facts:[
+
+"ماسوله از روستاهای تاریخی و پلکانی ایران است.",
+
+"تالاب انزلی از زیستگاه‌های مهم پرندگان است.",
+
+"میرزاقاسمی از غذاهای مشهور گیلانی است."
+
+]},
+
+{
+
+name:"لرستان",en:"Lorestan",capital:"خرم‌آباد",
+
+lat:33.49,lng:48.35,pop:"حدود ۱٫۸ میلیون نفر",area:"۲۸٬۲۹۴ کیلومتر مربع",
+
+description:"لرستان در غرب ایران و در رشته‌کوه زاگرس قرار دارد. آبشارها، رودخانه‌ها و آثار تاریخی از ویژگی‌های این استان هستند.",
+
+facts:[
+
+"قلعه فلک‌الافلاک در خرم‌آباد قرار دارد.",
+
+"آبشار بیشه از جاذبه‌های طبیعی استان است.",
+
+"لرستان به طبیعت کوهستانی و آبشارهای فراوان معروف است."
+
+]},
+
+{
+
+name:"مازندران",en:"Mazandaran",capital:"ساری",
+
+lat:36.56,lng:53.06,pop:"حدود ۳٫۳ میلیون نفر",area:"۲۳٬۸۴۲ کیلومتر مربع",
+
+description:"مازندران در شمال ایران و در کنار دریای خزر قرار دارد. جنگل‌ها، کوه‌ها و سواحل دریای خزر از ویژگی‌های آن هستند.",
+
+facts:[
+
+"دریاچه ولشت از جاذبه‌های طبیعی استان است.",
+
+"جنگل‌های هیرکانی در فهرست میراث جهانی یونسکو ثبت شده‌اند.",
+
+"برنج و مرکبات از محصولات مهم استان هستند."
+
+]},
+
+{
+
+name:"مرکزی",en:"Markazi",capital:"اراک",
+
+lat:34.09,lng:49.70,pop:"حدود ۱٫۵ میلیون نفر",area:"۲۹٬۱۲۷ کیلومتر مربع",
+
+description:"استان مرکزی در مرکز ایران قرار دارد. این منطقه به‌خاطر صنایع، آثار تاریخی و جایگاه جغرافیایی خود اهمیت دارد.",
+
+facts:[
+
+"اراک یکی از شهرهای صنعتی مهم ایران است.",
+
+"غار نخجیر از جاذبه‌های طبیعی استان است.",
+
+"محلات به گل‌ها و باغ‌های گل خود معروف است."
+
+]},
+
+{
+
+name:"هرمزگان",en:"Hormozgan",capital:"بندرعباس",
+
+lat:27.18,lng:56.27,pop:"حدود ۲ میلیون نفر",area:"۷۰٬۶۹۷ کیلومتر مربع",
+
+description:"هرمزگان در جنوب ایران و در کنار خلیج فارس و دریای عمان قرار دارد. جزیره‌ها و بندرهای آن اهمیت زیادی دارند.",
+
+facts:[
+
+"جزیره قشم بزرگ‌ترین جزیره ایران است.",
+
+"جزیره هرمز به خاک‌های رنگارنگش معروف است.",
+
+"جنگل‌های حرا از جاذبه‌های طبیعی استان هستند."
+
+]},
+
+{
+
+name:"همدان",en:"Hamadan",capital:"همدان",
+
+lat:34.80,lng:48.51,pop:"حدود ۱٫۸ میلیون نفر",area:"۱۹٬۳۶۸ کیلومتر مربع",
+
+description:"همدان از شهرهای بسیار قدیمی ایران است و پیشینه آن به دوران باستان می‌رسد. این استان در غرب کشور قرار دارد.",
+
+facts:[
+
+"آرامگاه بوعلی سینا در شهر همدان قرار دارد.",
+
+"غار علیصدر از غارهای آبی معروف ایران است.",
+
+"آرامگاه باباطاهر از مکان‌های تاریخی شهر است."
+
+]},
+
+{
+
+name:"یزد",en:"Yazd",capital:"یزد",
+
+lat:31.89,lng:54.36,pop:"حدود ۱٫۲ میلیون نفر",area:"۷۶٬۴۶۹ کیلومتر مربع",
+
+description:"یزد در مرکز ایران و در منطقه‌ای کویری قرار دارد. معماری خشتی و بادگیرهای آن شهرت جهانی دارند.",
+
+facts:[
+
+"بافت تاریخی یزد در فهرست میراث جهانی یونسکو ثبت شده است.",
+
+"بادگیرها برای خنک کردن ساختمان‌ها ساخته می‌شدند.",
+
+"قنات زارچ از قنات‌های تاریخی این منطقه است."
+
+]}
+
+];
+
+let current=0;
+
+let geoLayer=null;
+
+let capitalMarkers=[];
+
+let provinceLabels=[];
+
+let mapReady=false;
+
+const map=L.map("map",{scrollWheelZoom:true}).setView([32.5,53.5],5);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+
+  maxZoom:10,
+
+  attribution:'© OpenStreetMap contributors'
+
+}).addTo(map);
+
+const provinceStyle={
+
+  color:"#416d8d",
+
+  weight:1.4,
+
+  fillColor:"#b9d5e8",
+
+  fillOpacity:0.55
+
+};
+
+function normalize(value){
+
+  return String(value||"")
+
+    .replace(/[\u200e\u200f]/g,"")
+
+    .replace(/\s+/g," ")
+
+    .trim()
+
+    .toLowerCase();
+
+}
+
+function getEnglishName(feature){
+
+  const p=feature.properties||{};
+
+  return normalize(p["name:en"]||p.name_en||p.name);
+
+}
+
+function clearProvinceLabels(){
+
+  provinceLabels.forEach(layer=>map.removeLayer(layer));
+
+  provinceLabels=[];
+
+}
+
+function addProvinceLabels(){
+
+  if(!geoLayer)return;
+
+  clearProvinceLabels();
+
+  geoLayer.eachLayer(layer=>{
+
+    const p=layer.feature.properties||{};
+
+    const english=getEnglishName(layer.feature);
+
+    const item=provinces.find(x=>normalize(x.en)===english);
+
+    if(!item)return;
+
+    const center=layer.getBounds().getCenter();
+
+    const label=L.marker(center,{
+
+      interactive:false,
+
+      icon:L.divIcon({
+
+        className:"",
+
+        html:`<span class="province-label">${item.name}</span>`,
+
+        iconSize:null
+
+      })
+
+    }).addTo(map);
+
+    provinceLabels.push(label);
+
+  });
+
+}
+
+function addAllCapitals(){
+
+  capitalMarkers.forEach(m=>map.removeLayer(m));
+
+  capitalMarkers=[];
+
+  provinces.forEach(p=>{
+
+    const marker=L.marker([p.lat,p.lng],{
+
+      icon:L.divIcon({
+
+        className:"",
+
+        html:'<span style="font-size:15px">📍</span>',
+
+        iconSize:[20,20],
+
+        iconAnchor:[10,10]
+
+      })
+
+    }).bindTooltip(p.capital,{
+
+      permanent:true,
+
+      direction:"top",
+
+      offset:[0,-8],
+
+      className:"capital-label"
+
+    }).addTo(map);
+
+    capitalMarkers.push(marker);
+
+  });
+
+}
+
+function findFeature(item){
+
+  if(!geoLayer)return null;
+
+  let found=null;
+
+  geoLayer.eachLayer(layer=>{
+
+    if(getEnglishName(layer.feature)===normalize(item.en)){
+
+      found=layer;
+
+    }
+
+  });
+
+  return found;
+
+}
+
+function updateProvince(){
+
+  const p=provinces[current];
+
+  document.getElementById("provinceName").textContent=p.name;
+
+  document.getElementById("capitalName").textContent="مرکز استان: "+p.capital;
+
+  document.getElementById("population").textContent=p.pop;
+
+  document.getElementById("area").textContent=p.area;
+
+  document.getElementById("description").textContent=p.description;
+
+  const facts=document.getElementById("facts");
+
+  facts.innerHTML="";
+
+  p.facts.forEach(f=>{
+
+    const div=document.createElement("div");
+
+    div.className="fact";
+
+    div.textContent="• "+f;
+
+    facts.appendChild(div);
+
+  });
+
+  document.getElementById("previous").disabled=current===0;
+
+  document.getElementById("next").disabled=current===provinces.length-1;
+
+  if(geoLayer){
+
+    geoLayer.eachLayer(layer=>{
+
+      layer.setStyle(provinceStyle);
+
+    });
+
+    const selected=findFeature(p);
+
+    if(selected){
+
+      selected.setStyle({
+
+        color:"#123d63",
+
+        weight:3,
+
+        fillColor:"#f0b84c",
+
+        fillOpacity:0.8
+
+      });
+
+      selected.bringToFront();
+
+      map.fitBounds(selected.getBounds(),{padding:[35,35],maxZoom:7});
+
+    }else{
+
+      map.setView([p.lat,p.lng],6);
+
+    }
+
+  }else{
+
+    map.setView([p.lat,p.lng],6);
+
+  }
+
+}
+
+document.getElementById("previous").addEventListener("click",()=>{
+
+  if(current>0){
+
+    current--;
+
+    updateProvince();
+
+  }
+
+});
+
+document.getElementById("next").addEventListener("click",()=>{
+
+  if(current<provinces.length-1){
+
+    current++;
+
+    updateProvince();
+
+  }
+
+});
+
+async function loadProvinceMap(){
+
+  const status=document.getElementById("mapStatus");
+
+  try{
+
+    const response=await fetch(
+
+      "https://raw.githubusercontent.com/hosseinhabibi2004/iran-geojson/master/data/provinces/provinces.geojson"
+
+    );
+
+    if(!response.ok)throw new Error("Map download failed");
+
+    const geojson=await response.json();
+
+    geoLayer=L.geoJSON(geojson,{
+
+      style:provinceStyle,
+
+      onEachFeature:(feature,layer)=>{
+
+        const english=getEnglishName(feature);
+
+        const item=provinces.find(p=>normalize(p.en)===english);
+
+        if(item){
+
+          layer.on("click",()=>{
+
+            const index=provinces.indexOf(item);
+
+            if(index!==-1){
+
+              current=index;
+
+              updateProvince();
+
+            }
+
+          });
+
+        }
+
+      }
+
+    }).addTo(map);
+
+    addProvinceLabels();
+
+    addAllCapitals();
+
+    map.fitBounds(geoLayer.getBounds(),{padding:[15,15]});
+
+    mapReady=true;
+
+    status.textContent="";
+
+    updateProvince();
+
+  }catch(error){
+
+    status.textContent="بارگذاری مرزهای استان‌ها انجام نشد؛ اتصال اینترنت را بررسی کن.";
+
+  }
+
+}
+
+updateProvince();
+
+loadProvinceMap();
+
+</script>
+
+</body>
+
+</html>
